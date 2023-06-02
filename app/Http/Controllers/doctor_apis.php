@@ -50,10 +50,27 @@ class doctor_apis extends Controller
 
     public function getAllPatientsList(Request $request){
         $res=DB::table('patients_1')->paginate(perPage:20);
+        
         if($res)
         return [
             "status"=>'success',    
             "patient_list"=>$res
+        ];
+
+        else
+        return [
+            "status"=>'failure',
+        ];  
+    }
+
+    public function getLastPage(Request $request){
+        $count=DB::table('patients_1')->count();
+        $lastPage = ceil($count / 20);
+        
+        if($lastPage)
+        return [
+            "status"=>'success', 
+            "last_page"=>$lastPage,   
         ];
 
         else

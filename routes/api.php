@@ -36,3 +36,4 @@ Route::post("/submitReceptionistDetails",[doctor_apis::class,"submitReceptionist
 Route::post("/getAllReceptionistList",[doctor_apis::class,"getAllReceptionistList"]);
 Route::post("/editReceptionistProfile",[doctor_apis::class,"editReceptionistProfile"]);
 Route::post("/getImage",[doctor_apis::class,"getImage"]);
+Route::post("/getLastPage",[doctor_apis::class,"getLastPage"]);
