@@ -17,18 +17,32 @@ class doctor_apis extends Controller
        $email= $request['email'];
        $password=$request['password'];
 
-        $res=DB::table('doctors')->where('email',$email)->where('password',$password)->first();
+        $res=DB::table('doctors')->where('email',$email)->where('password',$password)->exists();
+        $rec=DB::table('receptionists')->where('email',$email)->where('password',$password)->exists();
         if($res)
-        return [
-            "status"=>'success',
-            "details"=>$res
-        ];
-
-        else
-        return [
-            "status"=>'failure',
-            "details"=>'unauthorised user!'
-        ];  
+        {
+            $res1=DB::table('doctors')->where('email',$email)->where('password',$password)->first();
+            return [
+                "status"=>'success',
+                "role"=>'doctor',
+                "details"=>$res1
+            ];
+        }
+        else if($rec){
+            $rec1=DB::table('receptionists')->where('email',$email)->where('password',$password)->first();
+            return [
+                "status"=>'success',
+                "role"=>'receptionist',
+                "details"=>$rec1
+            ]; 
+        }
+        else{
+            return [
+                "status"=>'failure',
+                "details"=>'unauthorised user!'
+            ];  
+        }
+        
 
     }
 
@@ -110,13 +124,29 @@ class doctor_apis extends Controller
 
     public function editDocProfile(Request $request){
         try{
-            $doc = $request->json()->all();
-        $res=DB::table('doctors')->update($doc);
-        $details=DB::table('doctors')->first();
-        return [
-            "status"=>'success',
-            "details"=>$details
-        ];
+            $role=$request->role;
+            $doc = $request->body;
+            //echo $doc;
+        if($role=='doctor')
+        {
+            $res=DB::table('doctors')->where('id',$doc['id'])->update($doc);
+            $details=DB::table('doctors')->where('id',$doc['id'])->first();
+            return [
+                "status"=>'success',
+                "role"=>'doctor',
+                "details"=>$details
+            ];
+        }
+        else{
+            $res=DB::table('receptionists')->where('id',$doc['id'])->update($doc);
+            $details=DB::table('receptionists')->where('id',$doc['id'])->first();
+            return [
+                "status"=>'success',
+                "role"=>'receptionist',
+                "details"=>$details
+            ];
+        }
+       
     }
         catch(\Illuminate\Database\QueryException $e){
             return [
@@ -460,4 +490,28 @@ class doctor_apis extends Controller
         return Response::download($path);  
     }
     
+    public function updateReceptionistDetails(Request $request)
+    {
+        $rec=DB::table('receptionists')->where('email',$request->email)->where('password',$request->password)->update(["status"=>$request->status]);
+       
+        if($rec)
+        {
+            return [
+                "status"=>"success"
+            ];
+        }
+        else{
+            return [
+                "status"=>"failed"
+            ];
+        }
+        
+    }
+
+    public function checkReceptionistStatus(Request $request){
+        $rec=DB::table('receptionists')->where('email',$request->email)->where('password',$request->password)->first();
+        return [
+            "status"=>$rec->status
+        ];
+    }
 }
